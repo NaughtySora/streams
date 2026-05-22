@@ -1,7 +1,6 @@
 'use strict';
 
 const assert = require("node:assert/strict");
-const { once } = require("node:events");
 const { Readable, Writable, } = require("node:stream");
 const { pipeline } = require("node:stream/promises");
 const { describe, it } = require("node:test");
