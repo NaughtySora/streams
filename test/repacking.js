@@ -5,6 +5,7 @@ const { Readable, Writable, } = require("node:stream");
 const { pipeline } = require("node:stream/promises");
 const { describe, it } = require("node:test");
 const { repacking, Repacking } = require("../lib/repacking.js");
+const { setTimeout } = require("node:timers/promises");
 
 const CONTENT_LENGTH = 5000;
 
@@ -44,5 +45,32 @@ describe('repacking', async () => {
       writable,
     );
     assert.equal(parts.length, Math.ceil(byteLength / SIZE));
+  });
+
+  await it('signal - passed', async () => {
+    const readable = new Readable();
+    readable.push(buffer);
+    readable.push(null);
+    const SIZE = 8;
+    const parts = [];
+    const signal = AbortSignal.timeout(1000);
+    for await (const buffer of repacking(readable, { size: SIZE, signal })) {
+      assert.ok(buffer.byteLength <= SIZE);
+      parts.push(buffer);
+    }
+    assert.equal(parts.length, Math.ceil(byteLength / SIZE));
+  });
+
+  await it('signal - aborted', async () => {
+    const readable = new Readable();
+    readable.push(buffer);
+    readable.push(null);
+    const SIZE = 8;
+    const signal = AbortSignal.timeout(500);
+    await setTimeout(500);
+    assert.rejects(async () => {
+      const gen = repacking(readable, { size: SIZE, signal });
+      for await (const buffer of gen) { }
+    }, { message: 'Repacking aborted' });
   });
 });
