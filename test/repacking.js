@@ -47,7 +47,7 @@ describe('repacking', async () => {
     assert.equal(parts.length, Math.ceil(byteLength / SIZE));
   });
 
-  await it('signal - passed', async () => {
+  await it('repacking signal - passed', async () => {
     const readable = new Readable();
     readable.push(buffer);
     readable.push(null);
@@ -61,16 +61,39 @@ describe('repacking', async () => {
     assert.equal(parts.length, Math.ceil(byteLength / SIZE));
   });
 
-  await it('signal - aborted', async () => {
+  await it('repacking signal - aborted', async () => {
     const readable = new Readable();
     readable.push(buffer);
     readable.push(null);
     const SIZE = 8;
     const signal = AbortSignal.timeout(500);
     await setTimeout(500);
-    assert.rejects(async () => {
+    await assert.rejects(async () => {
       const gen = repacking(readable, { size: SIZE, signal });
       for await (const buffer of gen) { }
+    }, { message: 'Repacking aborted' });
+  });
+
+  await it('Repacking signal - aborted', async () => {
+    const readable = new Readable();
+    readable.push(buffer);
+    readable.push(null);
+    const SIZE = 1000;
+    const parts = [];
+    const signal = AbortSignal.timeout(500);
+    const writable = new Writable({
+      async write(chunk, encoding, next) {
+        parts.push(chunk);
+        next();
+      }
+    });
+    await assert.rejects(async () => {
+      await setTimeout(500);
+      await pipeline(
+        readable,
+        Repacking.from({ size: SIZE, signal }),
+        writable,
+      );
     }, { message: 'Repacking aborted' });
   });
 });
