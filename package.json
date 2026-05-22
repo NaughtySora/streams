@@ -1,0 +1,33 @@
+{
+  "name": "streams",
+  "version": "0.1.0",
+  "author": "NaughtySora <naughtysora@proton.me>",
+  "license": "MIT",
+  "exports": "./main.js",
+  "types": "main.d.ts",
+  "readmeFilename": "README.md",
+  "keywords": [
+    "nodejs",
+    "streams"
+  ],
+  "files": [
+    "lib/",
+    "main.d.ts"
+  ],
+  "scripts": {
+    "test": "c8 node ./test/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NaughtySora/streams.git"
+  },
+  "bugs": {
+    "url": "https://github.com/NaughtySora/streams/issues",
+    "email": "naughtysora@proton.me"
+  },
+  "devDependencies": {
+    "c8": "^11.0.0",
+    "@types/node": "^25.6.0",
+    "typescript": "^6.0.3"
+  }
+}
